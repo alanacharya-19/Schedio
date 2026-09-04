@@ -4,24 +4,23 @@ import { Ionicons } from '@expo/vector-icons';
 import { useThemeColor } from '@/hooks/useThemeColor';
 import { SocialIcon } from '@/components/SocialIcon';
 import { ScheduleCard } from '@/components/ScheduleCard';
-import { MOCK_EVENTS } from '@/constants/MockData';
 import { router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { PlatformId } from '@/types';
+import { PlatformId, ScheduledEvent } from '@/types';
+import { setPendingPlatform } from '@/store/createCommand';
 
 const PLATFORMS = [
-  { id: 'instagram' as PlatformId, name: 'Instagram', connected: true },
+  { id: 'instagram' as PlatformId, name: 'Instagram', connected: false },
   { id: 'tiktok' as PlatformId, name: 'TikTok', connected: false },
-  { id: 'facebook' as PlatformId, name: 'Facebook', connected: true },
-  { id: 'whatsapp' as PlatformId, name: 'WhatsApp', connected: true },
+  { id: 'facebook' as PlatformId, name: 'Facebook', connected: false },
+  { id: 'whatsapp' as PlatformId, name: 'WhatsApp', connected: false },
 ];
 
 export default function HomeScreen() {
   const colors = useThemeColor();
 
-  const upcomingEvents = MOCK_EVENTS.filter(e => e.status === 'SCHEDULED')
-    .sort((a, b) => new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime());
+  const upcomingEvents: ScheduledEvent[] = [];
 
   const todayEvents = upcomingEvents.filter(e => {
     const eventDate = new Date(e.scheduledAt);
@@ -45,7 +44,8 @@ export default function HomeScreen() {
   });
 
   const handlePlatformPress = (platformId: PlatformId) => {
-    router.push({ pathname: '/create', params: { platform: platformId } });
+    setPendingPlatform(platformId);
+    router.push({ pathname: '/create' });
   };
 
   return (
@@ -91,13 +91,13 @@ export default function HomeScreen() {
           </ScrollView>
         </View>
 
-        {/* Create Schedule Button */}
+        {/* Set Event Button */}
         <Pressable
-          onPress={() => router.push('/create')}
+          onPress={() => router.push('/set-event')}
           style={[styles.createButton, { backgroundColor: colors.tint }]}
         >
-          <Ionicons name="add-circle" size={24} color="#FFFFFF" />
-          <Text style={styles.createButtonText}>Create Schedule</Text>
+          <Ionicons name="alarm" size={24} color="#FFFFFF" />
+          <Text style={styles.createButtonText}>Set Event</Text>
         </Pressable>
 
         {/* Upcoming Events */}

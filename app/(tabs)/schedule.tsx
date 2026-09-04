@@ -10,7 +10,6 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useThemeColor } from '@/hooks/useThemeColor';
 import { ScheduleCard } from '@/components/ScheduleCard';
-import { MOCK_EVENTS } from '@/constants/MockData';
 import { router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ScheduledEvent } from '@/types';
@@ -43,10 +42,8 @@ export default function ScheduleScreen() {
   const todayStr = today.toDateString();
 
   const getEventsForDate = (date: Date): ScheduledEvent[] => {
-    return MOCK_EVENTS.filter(e => {
-      const eventDate = new Date(e.scheduledAt);
-      return eventDate.toDateString() === date.toDateString();
-    }).sort((a, b) => new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime());
+    const events: ScheduledEvent[] = [];
+    return events;
   };
 
   const selectedDayEvents = getEventsForDate(selectedDate);

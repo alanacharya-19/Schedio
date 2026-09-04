@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import {
   View,
   Text,
@@ -13,10 +13,12 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useThemeColor } from '@/hooks/useThemeColor';
 import { SocialIcon } from '@/components/SocialIcon';
-import { router, useLocalSearchParams } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { PlatformId, ActionType, ScheduledEvent } from '@/types';
 import { PLATFORMS } from '@/constants/Platforms';
+import { consumePendingPlatform } from '@/store/createCommand';
+import { AppDateTimePicker } from '@/components/DateTimePicker';
 
 type CreateStep = 'platform' | 'action' | 'content' | 'datetime' | 'preview';
 
@@ -46,18 +48,39 @@ const ACTION_ICONS: Record<string, keyof typeof Ionicons.glyphMap> = {
 
 export default function CreateScreen() {
   const colors = useThemeColor();
-  const params = useLocalSearchParams<{ platform?: PlatformId }>();
-  const [step, setStep] = useState<CreateStep>(params.platform ? 'action' : 'platform');
-  const [selectedPlatform, setSelectedPlatform] = useState<PlatformId | null>(
-    params.platform || null
-  );
+  const [step, setStep] = useState<CreateStep>('platform');
+  const [selectedPlatform, setSelectedPlatform] = useState<PlatformId | null>(null);
   const [selectedAction, setSelectedAction] = useState<ActionType | null>(null);
   const [caption, setCaption] = useState('');
   const [hashtags, setHashtags] = useState('');
   const [recipient, setRecipient] = useState('');
   const [message, setMessage] = useState('');
-  const [scheduleDate, setScheduleDate] = useState('');
-  const [scheduleTime, setScheduleTime] = useState('');
+  const [scheduleDate, setScheduleDate] = useState<Date>(new Date());
+  const [scheduleTime, setScheduleTime] = useState<Date>(new Date());
+
+  useFocusEffect(
+    useCallback(() => {
+      const pending = consumePendingPlatform();
+      if (pending) {
+        setSelectedPlatform(pending);
+        setSelectedAction(null);
+        setCaption('');
+        setHashtags('');
+        setRecipient('');
+        setMessage('');
+        setStep('action');
+      } else {
+        // No platform selected (e.g. "+" tab press): show the platform picker.
+        setSelectedPlatform(null);
+        setSelectedAction(null);
+        setCaption('');
+        setHashtags('');
+        setRecipient('');
+        setMessage('');
+        setStep('platform');
+      }
+    }, [])
+  );
 
   const platform = PLATFORMS.find((p) => p.id === selectedPlatform);
   const capabilities = platform?.capabilities || [];
@@ -78,18 +101,27 @@ export default function CreateScreen() {
   };
 
   const handleSchedule = () => {
-    if (!scheduleDate || !scheduleTime) {
-      Alert.alert('Missing Info', 'Please select a date and time.');
-      return;
-    }
     setStep('preview');
   };
 
   const handleConfirmSchedule = () => {
+    const scheduledAt = new Date(
+      scheduleDate.getFullYear(),
+      scheduleDate.getMonth(),
+      scheduleDate.getDate(),
+      scheduleTime.getHours(),
+      scheduleTime.getMinutes()
+    );
     // Create event (will be implemented with SQLite in Phase 3)
     Alert.alert(
       'Scheduled!',
-      `Your ${platform?.name} ${ACTION_LABELS[selectedAction || '']} has been scheduled.`,
+      `Your ${platform?.name} ${ACTION_LABELS[selectedAction || '']} has been scheduled for ${scheduledAt.toLocaleString('en-US', {
+        month: 'long',
+        day: 'numeric',
+        year: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit',
+      })}.`,
       [{ text: 'OK', onPress: () => router.replace('/(tabs)') }]
     );
   };
@@ -172,6 +204,29 @@ export default function CreateScreen() {
               />
             ))}
           </View>
+
+          {/* Set an Event Option */}
+          <View style={styles.setEventDivider}>
+            <View style={[styles.dividerLine, { backgroundColor: colors.border }]} />
+            <Text style={[styles.dividerText, { color: colors.textMuted }]}>or</Text>
+            <View style={[styles.dividerLine, { backgroundColor: colors.border }]} />
+          </View>
+
+          <Pressable
+            onPress={() => router.push('/set-event')}
+            style={[styles.setEventCard, { backgroundColor: colors.surface, borderColor: colors.border }]}
+          >
+            <View style={[styles.setEventIcon, { backgroundColor: colors.tintLight }]}>
+              <Ionicons name="alarm" size={28} color={colors.tint} />
+            </View>
+            <View style={styles.setEventContent}>
+              <Text style={[styles.setEventTitle, { color: colors.text }]}>Set an Event</Text>
+              <Text style={[styles.setEventSubtitle, { color: colors.textSecondary }]}>
+                Schedule a reminder by date & time
+              </Text>
+            </View>
+            <Ionicons name="chevron-forward" size={20} color={colors.textMuted} />
+          </Pressable>
         </ScrollView>
       </SafeAreaView>
     );
@@ -403,31 +458,19 @@ export default function CreateScreen() {
 
           <View style={styles.section}>
             <Text style={[styles.label, { color: colors.text }]}>Schedule Date</Text>
-            <TextInput
-              style={[styles.input, {
-                backgroundColor: colors.surface,
-                borderColor: colors.border,
-                color: colors.text,
-              }]}
+            <AppDateTimePicker
+              mode="date"
               value={scheduleDate}
-              onChangeText={setScheduleDate}
-              placeholder="September 10, 2026"
-              placeholderTextColor={colors.textMuted}
+              onChange={setScheduleDate}
             />
           </View>
 
           <View style={styles.section}>
             <Text style={[styles.label, { color: colors.text }]}>Schedule Time</Text>
-            <TextInput
-              style={[styles.input, {
-                backgroundColor: colors.surface,
-                borderColor: colors.border,
-                color: colors.text,
-              }]}
+            <AppDateTimePicker
+              mode="time"
               value={scheduleTime}
-              onChangeText={setScheduleTime}
-              placeholder="7:00 PM"
-              placeholderTextColor={colors.textMuted}
+              onChange={setScheduleTime}
             />
           </View>
 
@@ -500,12 +543,23 @@ export default function CreateScreen() {
 
           <View style={styles.previewSection}>
             <Text style={[styles.previewLabel, { color: colors.textMuted }]}>Date</Text>
-            <Text style={[styles.previewContent, { color: colors.text }]}>{scheduleDate}</Text>
+            <Text style={[styles.previewContent, { color: colors.text }]}>
+              {scheduleDate.toLocaleDateString('en-US', {
+                month: 'long',
+                day: 'numeric',
+                year: 'numeric',
+              })}
+            </Text>
           </View>
 
           <View style={styles.previewSection}>
             <Text style={[styles.previewLabel, { color: colors.textMuted }]}>Time</Text>
-            <Text style={[styles.previewContent, { color: colors.text }]}>{scheduleTime}</Text>
+            <Text style={[styles.previewContent, { color: colors.text }]}>
+              {scheduleTime.toLocaleTimeString('en-US', {
+                hour: 'numeric',
+                minute: '2-digit',
+              })}
+            </Text>
           </View>
 
           <View style={styles.previewSection}>
@@ -603,6 +657,46 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     gap: 24,
     paddingTop: 8,
+  },
+  setEventDivider: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    marginVertical: 24,
+  },
+  dividerLine: {
+    flex: 1,
+    height: 1,
+  },
+  dividerText: {
+    fontSize: 13,
+    fontWeight: '600',
+  },
+  setEventCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+    borderRadius: 16,
+    borderWidth: 1,
+    gap: 14,
+  },
+  setEventIcon: {
+    width: 52,
+    height: 52,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  setEventContent: {
+    flex: 1,
+    gap: 4,
+  },
+  setEventTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  setEventSubtitle: {
+    fontSize: 13,
   },
   actionsList: {
     gap: 12,

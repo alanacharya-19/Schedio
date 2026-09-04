@@ -54,6 +54,10 @@ function RootLayoutNav() {
           name="lock"
           options={{ headerShown: false, presentation: 'fullScreenModal' }}
         />
+        <Stack.Screen
+          name="set-event"
+          options={{ headerShown: false, presentation: 'modal' }}
+        />
       </Stack>
     </ThemeProvider>
   );

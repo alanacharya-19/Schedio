@@ -3,9 +3,8 @@ import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useThemeColor } from '@/hooks/useThemeColor';
 import { EventCard } from '@/components/EventCard';
-import { MOCK_COMPLETED_EVENTS } from '@/constants/MockData';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { PlatformId, ScheduleStatus } from '@/types';
+import { PlatformId, ScheduledEvent } from '@/types';
 
 type FilterTab = 'all' | 'completed' | 'failed' | 'cancelled';
 
@@ -30,15 +29,17 @@ export default function HistoryScreen() {
   const [platformFilter, setPlatformFilter] = useState<PlatformId | 'all'>('all');
   const [showPlatformFilter, setShowPlatformFilter] = useState(false);
 
-  const filteredEvents = MOCK_COMPLETED_EVENTS.filter((event) => {
+  const allHistoryEvents: ScheduledEvent[] = [];
+
+  const filteredEvents = allHistoryEvents.filter((event) => {
     if (statusFilter !== 'all' && event.status.toLowerCase() !== statusFilter) return false;
     if (platformFilter !== 'all' && event.platform !== platformFilter) return false;
     return true;
   }).sort((a, b) => new Date(b.scheduledAt).getTime() - new Date(a.scheduledAt).getTime());
 
   const getStatusCount = (status: FilterTab) => {
-    if (status === 'all') return MOCK_COMPLETED_EVENTS.length;
-    return MOCK_COMPLETED_EVENTS.filter(
+    if (status === 'all') return allHistoryEvents.length;
+    return allHistoryEvents.filter(
       (e) => e.status.toLowerCase() === status
     ).length;
   };

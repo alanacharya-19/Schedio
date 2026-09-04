@@ -50,7 +50,8 @@
           "icon": "./assets/images/icon.png",
           "color": "#4F46E5"
         }
-      ]
+      ],
+      "expo-sqlite"
     ],
     "experiments": {
       "typedRoutes": true

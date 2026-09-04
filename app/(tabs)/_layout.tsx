@@ -57,16 +57,18 @@ export default function TabLayout() {
         options={{
           title: 'Create',
           headerShown: false,
-          tabBarIcon: ({ color, size }) => (
-            <View style={{
-              width: 48,
-              height: 48,
-              borderRadius: 24,
-              backgroundColor: colors.tint,
-              alignItems: 'center',
-              justifyContent: 'center',
-              marginBottom: 16,
-            }}>
+          tabBarIcon: ({ color }) => (
+            <View
+              style={{
+                width: 48,
+                height: 48,
+                borderRadius: 24,
+                backgroundColor: colors.tint,
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginBottom: 16,
+              }}
+            >
               <Ionicons name="add" size={28} color="#FFFFFF" />
             </View>
           ),

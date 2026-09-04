@@ -74,7 +74,7 @@ export default function SettingsScreen() {
         {
           icon: 'logo-instagram',
           label: 'Instagram',
-          value: 'Connected',
+          value: 'Not Connected',
           type: 'nav' as const,
           onPress: () => {},
         },
@@ -88,14 +88,14 @@ export default function SettingsScreen() {
         {
           icon: 'logo-facebook',
           label: 'Facebook',
-          value: 'Connected',
+          value: 'Not Connected',
           type: 'nav' as const,
           onPress: () => {},
         },
         {
           icon: 'logo-whatsapp',
           label: 'WhatsApp',
-          value: 'Connected',
+          value: 'Not Connected',
           type: 'nav' as const,
           onPress: () => {},
         },
