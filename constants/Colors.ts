@@ -1,0 +1,98 @@
+const tintColorLight = '#4F46E5';
+const tintColorDark = '#818CF8';
+
+export const Colors = {
+  light: {
+    text: '#11181C',
+    textSecondary: '#6B7280',
+    textMuted: '#9CA3AF',
+    background: '#F9FAFB',
+    surface: '#FFFFFF',
+    surfaceElevated: '#F3F4F6',
+    tint: tintColorLight,
+    tintLight: '#EEF2FF',
+    icon: '#687076',
+    tabIconDefault: '#687076',
+    tabIconSelected: tintColorLight,
+    border: '#E5E7EB',
+    borderLight: '#F3F4F6',
+    success: '#10B981',
+    successLight: '#ECFDF5',
+    warning: '#F59E0B',
+    warningLight: '#FFFBEB',
+    error: '#EF4444',
+    errorLight: '#FEF2F2',
+    info: '#3B82F6',
+    infoLight: '#EFF6FF',
+    shadow: '#000000',
+    overlay: 'rgba(0,0,0,0.5)',
+  },
+  dark: {
+    text: '#F9FAFB',
+    textSecondary: '#9CA3AF',
+    textMuted: '#6B7280',
+    background: '#0F172A',
+    surface: '#1E293B',
+    surfaceElevated: '#334155',
+    tint: tintColorDark,
+    tintLight: '#1E1B4B',
+    icon: '#9BA3AF',
+    tabIconDefault: '#9BA3AF',
+    tabIconSelected: tintColorDark,
+    border: '#334155',
+    borderLight: '#1E293B',
+    success: '#34D399',
+    successLight: '#064E3B',
+    warning: '#FBBF24',
+    warningLight: '#78350F',
+    error: '#F87171',
+    errorLight: '#7F1D1D',
+    info: '#60A5FA',
+    infoLight: '#1E3A5F',
+    shadow: '#000000',
+    overlay: 'rgba(0,0,0,0.7)',
+  },
+};
+
+export const PlatformColors: Record<string, { primary: string; light: string; icon: string }> = {
+  instagram: {
+    primary: '#E4405F',
+    light: '#FDE8ED',
+    icon: '#E4405F',
+  },
+  tiktok: {
+    primary: '#010101',
+    light: '#F0F0F0',
+    icon: '#010101',
+  },
+  facebook: {
+    primary: '#1877F2',
+    light: '#E8F0FE',
+    icon: '#1877F2',
+  },
+  whatsapp: {
+    primary: '#25D366',
+    light: '#E8F8EE',
+    icon: '#25D366',
+  },
+  youtube: {
+    primary: '#FF0000',
+    light: '#FEE2E2',
+    icon: '#FF0000',
+  },
+  x: {
+    primary: '#000000',
+    light: '#F3F4F6',
+    icon: '#000000',
+  },
+  linkedin: {
+    primary: '#0A66C2',
+    light: '#E0F0FF',
+    icon: '#0A66C2',
+  },
+  telegram: {
+    primary: '#26A5E4',
+    light: '#E3F4FD',
+    icon: '#26A5E4',
+  },
+};
